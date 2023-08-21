@@ -1,0 +1,26 @@
+[package]
+authors = ["Manvir Bal"]
+name = "gitra"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "gitra"
+path = "src/main.rs"
+rust-version="1.71.0"
+
+[dependencies]
+anyhow = "1.0.72"
+clap = { version = "4.3.12", features = ["derive"] }
+futures = "0.3.28"
+hyper = { version = "0.14.27", features = ["client", "full"] }
+serde = "1.0.174"
+serde_json = "1.0.103"
+tokio = { version = "1.29.1", features = ["full"] }
+tracing = "0.1.37"
+
+[dev-dependencies]
+atomic-wait = "1.1.0"
+tracing-subscriber = "0.3.17"
+
