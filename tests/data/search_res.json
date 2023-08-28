@@ -47,27 +47,27 @@
         "customfield_10029": null,
         "resolutiondate": null,
         "workratio": -1,
-        "lastViewed": null,
         "watches": {
           "self": "https://balmanvir.atlassian.net/rest/api/3/issue/TEST-1/watchers",
           "watchCount": 0,
           "isWatching": false
         },
+        "lastViewed": "2023-08-27T14:20:41.004-0700",
         "created": "2023-08-12T01:57:14.539-0700",
         "customfield_10020": null,
         "customfield_10021": null,
         "customfield_10022": null,
+        "customfield_10023": null,
         "priority": {
           "self": "https://balmanvir.atlassian.net/rest/api/3/priority/3",
           "iconUrl": "https://balmanvir.atlassian.net/images/icons/priorities/medium.svg",
           "name": "Medium",
           "id": "3"
         },
-        "customfield_10023": null,
         "customfield_10024": null,
         "customfield_10025": null,
-        "labels": [],
         "customfield_10026": null,
+        "labels": [],
         "customfield_10016": null,
         "customfield_10017": null,
         "customfield_10018": {
@@ -79,12 +79,12 @@
           }
         },
         "customfield_10019": "0|i0000f:",
-        "aggregatetimeoriginalestimate": null,
         "timeestimate": null,
+        "aggregatetimeoriginalestimate": null,
         "versions": [],
         "issuelinks": [],
         "assignee": null,
-        "updated": "2023-08-12T01:57:14.539-0700",
+        "updated": "2023-08-27T14:20:51.792-0700",
         "status": {
           "self": "https://balmanvir.atlassian.net/rest/api/3/status/10006",
           "description": "",
@@ -101,7 +101,21 @@
         },
         "components": [],
         "timeoriginalestimate": null,
-        "description": null,
+        "description": {
+          "version": 1,
+          "type": "doc",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "This is a test description"
+                }
+              ]
+            }
+          ]
+        },
         "customfield_10010": null,
         "customfield_10014": null,
         "customfield_10015": null,
@@ -110,8 +124,8 @@
         "security": null,
         "customfield_10007": null,
         "customfield_10008": null,
-        "customfield_10009": null,
         "aggregatetimeestimate": null,
+        "customfield_10009": null,
         "summary": "Test in Test Project",
         "creator": {
           "self": "https://balmanvir.atlassian.net/rest/api/3/user?accountId=712020%3A99f7048c-01a4-4d9c-a32a-8478f8e01ba7",
@@ -208,27 +222,27 @@
         "customfield_10029": null,
         "resolutiondate": null,
         "workratio": -1,
-        "lastViewed": null,
         "watches": {
           "self": "https://balmanvir.atlassian.net/rest/api/3/issue/CLOUD-2/watchers",
           "watchCount": 0,
           "isWatching": false
         },
+        "lastViewed": "2023-08-27T14:20:28.323-0700",
         "created": "2023-07-15T19:02:58.407-0700",
         "customfield_10020": null,
         "customfield_10021": null,
         "customfield_10022": null,
-        "customfield_10023": null,
         "priority": {
           "self": "https://balmanvir.atlassian.net/rest/api/3/priority/3",
           "iconUrl": "https://balmanvir.atlassian.net/images/icons/priorities/medium.svg",
           "name": "Medium",
           "id": "3"
         },
+        "customfield_10023": null,
         "customfield_10024": null,
         "customfield_10025": null,
-        "labels": [],
         "customfield_10026": null,
+        "labels": [],
         "customfield_10016": null,
         "customfield_10017": null,
         "customfield_10018": {
@@ -240,8 +254,8 @@
           }
         },
         "customfield_10019": "0|i00007:",
-        "timeestimate": null,
         "aggregatetimeoriginalestimate": null,
+        "timeestimate": null,
         "versions": [],
         "issuelinks": [],
         "assignee": null,
@@ -346,6 +360,7 @@
         },
         "timespent": null,
         "customfield_10030": null,
+        "customfield_10031": null,
         "project": {
           "self": "https://balmanvir.atlassian.net/rest/api/3/project/10001",
           "id": "10001",
@@ -360,7 +375,6 @@
             "32x32": "https://balmanvir.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10416?size=medium"
           }
         },
-        "customfield_10031": null,
         "fixVersions": [],
         "aggregatetimespent": null,
         "resolution": null,
@@ -369,7 +383,7 @@
         "customfield_10029": null,
         "resolutiondate": null,
         "workratio": -1,
-        "lastViewed": "2023-07-15T17:30:05.392-0700",
+        "lastViewed": "2023-08-27T14:20:32.622-0700",
         "watches": {
           "self": "https://balmanvir.atlassian.net/rest/api/3/issue/CLOUD-1/watchers",
           "watchCount": 0,
@@ -388,8 +402,8 @@
         },
         "customfield_10024": null,
         "customfield_10025": null,
-        "labels": [],
         "customfield_10026": null,
+        "labels": [],
         "customfield_10016": null,
         "customfield_10017": null,
         "customfield_10018": {
@@ -446,8 +460,8 @@
         "customfield_10007": null,
         "security": null,
         "customfield_10008": null,
-        "customfield_10009": null,
         "aggregatetimeestimate": null,
+        "customfield_10009": null,
         "summary": "test",
         "creator": {
           "self": "https://balmanvir.atlassian.net/rest/api/3/user?accountId=712020%3A99f7048c-01a4-4d9c-a32a-8478f8e01ba7",
