@@ -51,13 +51,13 @@ impl SearchArgs {
         let mut jql_search = "".to_string();
         //TODO: Do this with a macro?
         if self.project.is_some() {
-            jql_search.push_str(format!("project={}", self.project.unwrap()).as_ref());
+            jql_search.push_str(format!("project='{}'", self.project.unwrap()).as_ref());
         }
         if self.assignee.is_some() {
-            jql_search.push_str(format!("assignee={}", self.assignee.unwrap()).as_ref());
+            jql_search.push_str(format!("assignee='{}'", self.assignee.unwrap()).as_ref());
         }
         if self.id.is_some() {
-            jql_search.push_str(format!("id={}", self.id.unwrap()).as_ref());
+            jql_search.push_str(format!("id='{}'", self.id.unwrap()).as_ref());
         }
         jql_search
     }

@@ -65,7 +65,22 @@ fn run() -> Result<ExitCode> {
             }));
         }
         Command::List => {
+            s.assignee = Some(utils::git_email());
             let res = rt.block_on(client.issues(s));
+            match res.error_messages {
+                Some(err) => {
+                    println!("Failed to get any data from jira {}", err.join("\n"));
+                    return Ok(ExitCode::FAILURE);
+                }
+                _ => (),
+            }
+            match res.issues {
+                None => {
+                    println!("You do not have any assigned issues");
+                    return Ok(ExitCode::FAILURE);
+                }
+                _ => (),
+            }
             for issue in res.issues.iter().flatten() {
                 println!("{}-{}", issue.key, utils::normalize_title(&issue.title));
             }
