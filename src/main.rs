@@ -85,6 +85,23 @@ fn run() -> Result<ExitCode> {
                 println!("{}-{}", issue.key, utils::normalize_title(&issue.title));
             }
         }
+        Command::Bump => {
+            let branch_name = utils::current_branch_name();
+            match branch_name {
+                Ok(name) => {
+                    let bumped_branch_name = utils::bump_branch(name);
+                    let branch_created = utils::git_make_branch(bumped_branch_name);
+                    return Ok(branch_created.unwrap_or_else(|err| {
+                        println!("{}", err);
+                        return std::process::ExitCode::FAILURE;
+                    }));
+                }
+                Err(err) => {
+                    println!("{}", err);
+                    return Ok(ExitCode::FAILURE);
+                }
+            }
+        }
     }
     return Ok(ExitCode::SUCCESS);
 }

@@ -215,7 +215,7 @@ mod test {
         let expected_res: JiraSearchOutput = serde_json::from_value(expected_json).unwrap();
         check(
             "/rest/api/3/search".to_string(),
-            format!("id={}", issue_id),
+            format!("id='{}'", issue_id),
             200,
             mock_search_results(),
             search_args,
@@ -242,7 +242,7 @@ mod test {
 
         check(
             "/rest/api/3/search".to_string(),
-            format!("id={}", issue_id),
+            format!("id='{}'", issue_id),
             200,
             mock_json_body.to_string(),
             search_args,

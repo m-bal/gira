@@ -16,6 +16,8 @@ pub enum Command {
     },
     /// List all issues assigned to you (uses configured git.email to filter)
     List,
+    /// bump the branch version (creating a new branch for the current issue)
+    Bump,
 }
 
 fn issue_validator(s: &str) -> Result<String, String> {
