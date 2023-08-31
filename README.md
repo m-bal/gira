@@ -31,12 +31,12 @@ In order for Gira to connect to Jira, you need to create an API token using this
 ```sh
 git config --global jira.token <api_token>
 ```
+
 ### verify
 `jira.host` and `jira.token` should appear in this list with the values you provided.
 ```sh
-git config --global list
+git config --global --list
 ```
-
 If you don't see the token and host in the list, run `git config --global --edit` and add them to the file:
 ```sh
 [jira]
@@ -44,14 +44,23 @@ If you don't see the token and host in the list, run `git config --global --edit
     host=<host>
 ```
 
+
+#### Jira Email
+If your jira account email is different from your git configured `user.email`, then you can set
+`jira.email`
+```sh
+git config --global jira.email <jira-account-email>
+```
+
+
 ## Usage
 
 ```sh
-gitra <COMMAND>
+gira <COMMAND>
 
 Commands:
   start  Creates a branch based on the jira issue id (PROJECT-ID)
-  list   List issues assigned to you (uses git.email to filter)
+  list   List issues assigned to you (uses jira.email or user.email to filter)
   bump   bump the branch version (creating a new branch for the current issu
 e)
   help   Print this message or the help of the given subcommand(s)

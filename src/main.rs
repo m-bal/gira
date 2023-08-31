@@ -20,10 +20,14 @@ fn run() -> Result<ExitCode> {
 
     let rt = Runtime::new().unwrap();
     let mut s = SearchArgs::default();
+    let email = utils::retrive_git_config("jira.email").unwrap_or_else(|_| {
+        utils::retrive_git_config("user.email")
+            .expect("Unable to retrieve jira.email or user.email")
+    });
     let jira_config = JiraConfig {
-        host: utils::git_jira_host(),
-        email: utils::git_email(),
-        api_token: utils::git_jira_token(),
+        host: utils::retrive_git_config("jira.host").unwrap(),
+        email: email.clone(),
+        api_token: utils::retrive_git_config("jira.token").unwrap(),
     };
     let client = JiraClient::new(jira_config);
 
@@ -65,7 +69,7 @@ fn run() -> Result<ExitCode> {
             }));
         }
         Command::List => {
-            s.assignee = Some(utils::git_email());
+            s.assignee = Some(email);
             let res = rt.block_on(client.issues(s));
             match res.error_messages {
                 Some(err) => {

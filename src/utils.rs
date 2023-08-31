@@ -2,73 +2,32 @@ use std::process::{self, Command};
 
 use regex::Regex;
 
-pub fn git_email() -> String {
+pub fn retrive_git_config(arg: &str) -> Result<String, String> {
+    let command = format!("git config --global {}", arg);
     let output = Command::new("sh")
         .arg("-c")
-        .arg("git config user.email")
+        .arg(&command)
         .output()
         .expect("Failed to run git config");
 
     if !output.status.success() {
-        panic!(
-            "git config user.email failed with exit code {}",
+        return Err(format!(
+            "{} failed with exit code {}",
+            command,
             output.status.code().expect("No status code")
-        );
+        ));
     }
 
     if output.stdout.is_empty() {
-        panic!("git config user.email returned nothing please config git email",);
+        return Err(format!(
+            "{} returned nothing please configure it with git config --global --edit",
+            command
+        ));
     }
-    String::from_utf8(output.stdout)
+    Ok(String::from_utf8(output.stdout)
         .expect("unable to convert stdout to String")
         .trim()
-        .to_string()
-}
-
-pub fn git_jira_token() -> String {
-    let output = Command::new("sh")
-        .arg("-c")
-        .arg("git config --global jira.token")
-        .output()
-        .expect("Failed to run git config");
-
-    if !output.status.success() {
-        panic!(
-            "git config jira.token failed with exit code {}",
-            output.status.code().expect("No status code")
-        );
-    }
-
-    if output.stdout.is_empty() {
-        panic!("git config --global jira.token returned nothing please config it with git config --global --edit",);
-    }
-    String::from_utf8(output.stdout)
-        .expect("unable to convert stdout to String")
-        .trim()
-        .to_string()
-}
-
-pub fn git_jira_host() -> String {
-    let output = Command::new("sh")
-        .arg("-c")
-        .arg("git config --global jira.host")
-        .output()
-        .expect("Failed to run git config");
-
-    if !output.status.success() {
-        panic!(
-            "git config jira.host failed with exit code {}",
-            output.status.code().expect("No status code")
-        );
-    }
-
-    if output.stdout.is_empty() {
-        panic!("git config --global jira.host returned nothing please config it with git config --global --edit",);
-    }
-    String::from_utf8(output.stdout)
-        .expect("unable to convert stdout to String")
-        .trim()
-        .to_string()
+        .to_string())
 }
 
 pub fn normalize_title(title: &String) -> String {
