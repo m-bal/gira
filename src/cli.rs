@@ -14,7 +14,7 @@ pub enum Command {
         #[arg(value_parser = issue_validator)]
         issue_id: String,
     },
-    /// List all issues assigned to you (uses configured git.email to filter)
+    /// List issues assigned to you (uses git.email to filter)
     List,
     /// bump the branch version (creating a new branch for the current issue)
     Bump,
