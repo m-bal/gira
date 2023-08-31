@@ -72,10 +72,13 @@ pub fn git_jira_host() -> String {
 }
 
 pub fn normalize_title(title: &String) -> String {
-    title
-        .trim()
-        .split_whitespace()
-        .map(|word| word.to_string())
+    // match any non-word character
+    let re = Regex::new(r"[\W+$]").unwrap();
+    re.replace_all(&title, "-")
+        .to_string()
+        .split("-")
+        .filter(|s| !s.is_empty())
+        .map(|s| s.to_string())
         .collect::<Vec<String>>()
         .join("-")
 }
@@ -125,16 +128,17 @@ pub fn current_branch_name() -> Result<String, String> {
 pub fn bump_branch(name: String) -> String {
     let split_name: Vec<&str> = name.split(".").collect();
     if split_name.len() < 2 {
-        return name + ".v1";
+        return normalize_title(&name) + ".v1";
     }
     let re = Regex::new(r"v(?<num>[0-9]+)$").unwrap();
     let Some(cap) = re.captures(split_name.last().unwrap()) else {
-        return name + ".v1";
+        return normalize_title(&name) + ".v1";
     };
     let num = cap["num"]
         .parse::<u8>()
         .expect("Unable to parse branch name");
-    return split_name[0..split_name.len() - 1].join(".") + format!(".v{}", num + 1).as_str();
+    return normalize_title(&split_name[0..split_name.len() - 1].join("."))
+        + format!(".v{}", num + 1).as_str();
 }
 
 #[cfg(test)]
@@ -142,10 +146,21 @@ mod test {
     use test_case::test_case;
 
     #[test_case("test_branch", "test_branch.v1"; "initial bump")]
-    #[test_case("test.branch", "test.branch.v1"; "initial bump with dot")]
+    #[test_case("test.branch", "test-branch.v1"; "initial bump with dot")]
     #[test_case("test_branch.v1", "test_branch.v2"; "bump from v1 to v2")]
-    #[test_case("test.branch.v1", "test.branch.v2"; "bump from v1 to v2 with dot")]
+    #[test_case("test.branch.v1", "test-branch.v2"; "bump from v1 to v2 with dot")]
+    #[test_case("(test)branch.v1", "test-branch.v2"; "bump from v1 to v2 with parans")]
+    #[test_case("(test))branch.v1", "test-branch.v2"; "bump from v1 to v2 with consecutive parans")]
     fn test_bumpping(branch_name: &str, expected: &str) {
         assert_eq!(super::bump_branch(branch_name.to_string()), expected)
+    }
+
+    #[test_case("12_temp-temp2", "12_temp-temp2"; "No replacement")]
+    #[test_case("12.temp.temp2", "12-temp-temp2"; "basic")]
+    #[test_case("12(.temp)temp2", "12-temp-temp2"; "consecutive")]
+    #[test_case("(12(.temp)temp2", "12-temp-temp2"; "beginning")]
+    #[test_case("(12(.temp)temp2)", "12-temp-temp2"; "end")]
+    fn test_normalize_title(title: &str, expected: &str) {
+        assert_eq!(super::normalize_title(&title.to_string()), expected)
     }
 }
