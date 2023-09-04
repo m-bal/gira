@@ -46,20 +46,25 @@ pub struct SearchArgs {
     pub id: Option<String>,
 }
 
-impl SearchArgs {
-    fn to_string(self) -> String {
+impl std::fmt::Display for SearchArgs {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut jql_search = "".to_string();
         //TODO: Do this with a macro?
         if self.project.is_some() {
-            jql_search.push_str(format!("project='{}'", self.project.unwrap()).as_ref());
+            jql_search.push_str(format!("project='{}'", self.project.as_ref().unwrap()).as_ref());
         }
         if self.assignee.is_some() {
-            jql_search.push_str(format!("assignee='{}'", self.assignee.unwrap()).as_ref());
+            jql_search.push_str(format!("assignee='{}'", self.assignee.as_ref().unwrap()).as_ref());
         }
         if self.id.is_some() {
-            jql_search.push_str(format!("id='{}'", self.id.unwrap()).as_ref());
+            jql_search.push_str(format!("id='{}'", self.id.as_ref().unwrap()).as_ref());
         }
-        jql_search
+
+        if jql_search.is_empty() {
+            write!(f, "")
+        } else {
+            write!(f, "?jql={}", jql_search)
+        }
     }
 }
 
@@ -75,16 +80,8 @@ impl JiraClient {
         }
     }
 
-    fn extract_search_args(&self, args: SearchArgs) -> String {
-        let query = args.to_string();
-        if query.is_empty() {
-            return "".to_string();
-        }
-        "?jql=".to_string() + &query
-    }
-
     pub async fn issues(self, args: SearchArgs) -> JiraSearchOutput {
-        let jql = self.extract_search_args(args);
+        let jql = format!("{}", args);
 
         let url = self.config.host + &String::from("/rest/api/3/search") + &jql;
         let request_uri = url
@@ -94,7 +91,7 @@ impl JiraClient {
             .uri(request_uri)
             .method("GET")
             .body(hyper::Body::empty())
-            .expect("Request not built");
+            .expect("Could not build Request");
 
         let headers = req.headers_mut();
         headers.typed_insert(self.basic_auth);

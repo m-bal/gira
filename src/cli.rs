@@ -29,5 +29,5 @@ fn issue_validator(s: &str) -> Result<String, String> {
     if first.chars().all(|c| c.is_alphabetic()) && sec.parse::<u64>().is_ok() {
         return Ok(s.to_string());
     }
-    return Err("Must be of form <team-name>-<id> example: CLOUD-1".to_string());
+    Err("Must be of form <team-name>-<id> example: CLOUD-1".to_string())
 }

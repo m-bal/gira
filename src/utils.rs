@@ -30,19 +30,19 @@ pub fn retrive_git_config(arg: &str) -> Result<String, String> {
         .to_string())
 }
 
-pub fn normalize_title(title: &String) -> String {
+pub fn normalize_title(title: &str) -> String {
     // match any non-word character
     let re = Regex::new(r"[\W+$]").unwrap();
-    re.replace_all(&title, "-")
+    re.replace_all(title, "-")
         .to_string()
-        .split("-")
+        .split('-')
         .filter(|s| !s.is_empty())
         .map(|s| s.to_string())
         .collect::<Vec<String>>()
         .join("-")
 }
 
-pub fn git_make_branch(branch_name: String) -> Result<process::ExitCode, String> {
+pub fn git_make_branch(branch_name: &str) -> Result<process::ExitCode, String> {
     let command = format!("git checkout -b {}", branch_name);
     let output = Command::new("sh")
         .arg("-c")
@@ -84,14 +84,14 @@ pub fn current_branch_name() -> Result<String, String> {
         .to_string())
 }
 
-pub fn bump_branch(name: String) -> String {
-    let split_name: Vec<&str> = name.split(".").collect();
+pub fn bump_branch(name: &str) -> String {
+    let split_name: Vec<&str> = name.split('.').collect();
     if split_name.len() < 2 {
-        return normalize_title(&name) + ".v1";
+        return normalize_title(name) + ".v1";
     }
     let re = Regex::new(r"v(?<num>[0-9]+)$").unwrap();
     let Some(cap) = re.captures(split_name.last().unwrap()) else {
-        return normalize_title(&name) + ".v1";
+        return normalize_title(name) + ".v1";
     };
     let num = cap["num"]
         .parse::<u8>()
@@ -111,7 +111,7 @@ mod test {
     #[test_case("(test)branch.v1", "test-branch.v2"; "bump from v1 to v2 with parans")]
     #[test_case("(test))branch.v1", "test-branch.v2"; "bump from v1 to v2 with consecutive parans")]
     fn test_bumpping(branch_name: &str, expected: &str) {
-        assert_eq!(super::bump_branch(branch_name.to_string()), expected)
+        assert_eq!(super::bump_branch(branch_name), expected)
     }
 
     #[test_case("12_temp-temp2", "12_temp-temp2"; "No replacement")]
@@ -120,6 +120,6 @@ mod test {
     #[test_case("(12(.temp)temp2", "12-temp-temp2"; "beginning")]
     #[test_case("(12(.temp)temp2)", "12-temp-temp2"; "end")]
     fn test_normalize_title(title: &str, expected: &str) {
-        assert_eq!(super::normalize_title(&title.to_string()), expected)
+        assert_eq!(super::normalize_title(title), expected)
     }
 }
