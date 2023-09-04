@@ -9,7 +9,6 @@ use config::JiraConfig;
 use gira::utils;
 use jira::{JiraClient, SearchArgs};
 use std::process::ExitCode;
-use tokio::runtime::Runtime;
 
 fn main() {
     let _ = run();
@@ -18,7 +17,6 @@ fn main() {
 fn run() -> Result<ExitCode> {
     let opts = Opts::parse();
 
-    let rt = Runtime::new().unwrap();
     let mut s = SearchArgs::default();
     let email = utils::retrive_git_config("jira.email").unwrap_or_else(|_| {
         utils::retrive_git_config("user.email")
@@ -35,7 +33,7 @@ fn run() -> Result<ExitCode> {
         Command::Start { issue_id } => {
             s.id = Some(issue_id.clone());
             //TODO: block with a timer.
-            let res = rt.block_on(client.issues(s));
+            let res = client.issues(s);
             if let Some(err) = res.error_messages {
                 eprintln!("Failed to get any data from jira {}", err.join("\n"));
                 return Ok(ExitCode::FAILURE);
@@ -68,7 +66,7 @@ fn run() -> Result<ExitCode> {
         }
         Command::List => {
             s.assignee = Some(email);
-            let res = rt.block_on(client.issues(s));
+            let res = client.issues(s);
             if let Some(err) = res.error_messages {
                 eprintln!("Failed to get any data from jira {}", err.join("\n"));
                 return Ok(ExitCode::FAILURE);

@@ -1,8 +1,5 @@
-use headers::authorization::Basic;
-use headers::{Authorization, HeaderMapExt};
-use hyper::client::HttpConnector;
-use hyper::{Client, Request, Uri};
-use hyper_tls::HttpsConnector;
+use reqwest::blocking::Client;
+use reqwest::Url;
 use serde::{Deserialize, Deserializer};
 
 use crate::config::JiraConfig;
@@ -34,9 +31,8 @@ pub struct JiraSearchOutput {
 }
 
 pub struct JiraClient {
-    client: Client<HttpsConnector<HttpConnector>>,
+    client: reqwest::blocking::Client,
     config: JiraConfig,
-    basic_auth: Authorization<Basic>,
 }
 
 #[derive(Default)]
@@ -51,17 +47,17 @@ impl std::fmt::Display for SearchArgs {
         let mut jql_search = "".to_string();
         //TODO: Do this with a macro?
         if self.project.is_some() {
-            jql_search.push_str(format!("project='{}'", self.project.as_ref().unwrap()).as_ref());
+            jql_search.push_str(&format!("project='{}'", self.project.as_ref().unwrap()));
         }
         if self.assignee.is_some() {
-            jql_search.push_str(format!("assignee='{}'", self.assignee.as_ref().unwrap()).as_ref());
+            jql_search.push_str(&format!("assignee='{}'", self.assignee.as_ref().unwrap()));
         }
         if self.id.is_some() {
-            jql_search.push_str(format!("id='{}'", self.id.as_ref().unwrap()).as_ref());
+            jql_search.push_str(&format!("id='{}'", self.id.as_ref().unwrap()));
         }
 
         if jql_search.is_empty() {
-            write!(f, "")
+            Ok(())
         } else {
             write!(f, "?jql={}", jql_search)
         }
@@ -70,41 +66,30 @@ impl std::fmt::Display for SearchArgs {
 
 impl JiraClient {
     pub fn new(config: JiraConfig) -> Self {
-        let https = HttpsConnector::new();
-        let client = Client::builder().build(https);
-        let basic_auth = Authorization::basic(&config.email, &config.api_token);
         Self {
-            client,
+            client: Client::new(),
             config,
-            basic_auth,
         }
     }
 
-    pub async fn issues(self, args: SearchArgs) -> JiraSearchOutput {
+    pub fn issues(self, args: SearchArgs) -> JiraSearchOutput {
         let jql = format!("{}", args);
 
-        let url = self.config.host + &String::from("/rest/api/3/search") + &jql;
-        let request_uri = url
-            .parse::<Uri>()
-            .unwrap_or_else(|err| panic!("cannot parse uri {:?}", err));
-        let mut req = Request::builder()
-            .uri(request_uri)
-            .method("GET")
-            .body(hyper::Body::empty())
-            .expect("Could not build Request");
-
-        let headers = req.headers_mut();
-        headers.typed_insert(self.basic_auth);
-
-        let res = self
+        let url = Url::parse(&format!(
+            "{}{}{}",
+            self.config.host,
+            String::from("/rest/api/3/search"),
+            jql
+        ))
+        .expect("unable to parse url");
+        let resp = self
             .client
-            .request(req)
-            .await
-            .unwrap_or_else(|err| panic!("Unable to make request: {}", err));
-        let buf = hyper::body::to_bytes(res)
-            .await
-            .unwrap_or_else(|err| panic!("Unable to turn body into bytes {}", err));
-        serde_json::from_slice(&buf)
+            .get(url)
+            .basic_auth(&self.config.email, Some(&self.config.api_token))
+            .send()
+            .expect("Unable to send request to jira");
+
+        serde_json::from_slice(&resp.bytes().unwrap())
             .unwrap_or_else(|err| panic!("Unable to parse response to json {}", err))
     }
 }
@@ -124,7 +109,8 @@ mod test {
         data.to_string()
     }
 
-    async fn check(
+    #[track_caller]
+    fn check(
         mock_path: String,
         mock_query: String,
         result_code: u16,
@@ -149,7 +135,7 @@ mod test {
         };
         let client = JiraClient::new(config);
         let client_args = search_args.into().unwrap_or(SearchArgs::default());
-        let res = client.issues(client_args).await;
+        let res = client.issues(client_args);
         mock.assert();
         for expected_issue in expected_response.issues.iter().flatten() {
             assert!(
@@ -176,8 +162,8 @@ mod test {
         }
     }
 
-    #[tokio::test]
-    async fn test_serach_issues() {
+    #[test]
+    fn test_serach_issues() {
         let expected_json = json!({"issues":
             [
                 {"key": "CLOUD-2", "fields": {"summary": "test again"}},
@@ -193,12 +179,11 @@ mod test {
             mock_search_results(),
             SearchArgs::default(),
             expected_res,
-        )
-        .await;
+        );
     }
 
-    #[tokio::test]
-    async fn test_serach_issues_by_id() {
+    #[test]
+    fn test_serach_issues_by_id() {
         let issue_id = "CLOUD-1".to_string();
         let search_args = SearchArgs {
             id: Some(issue_id.clone()),
@@ -217,12 +202,11 @@ mod test {
             mock_search_results(),
             search_args,
             expected_res,
-        )
-        .await;
+        );
     }
 
-    #[tokio::test]
-    async fn test_serach_issues_with_nonexistent_id() {
+    #[test]
+    fn test_serach_issues_with_nonexistent_id() {
         let issue_id = "CLOUD-2".to_string();
         let search_args = SearchArgs {
             id: Some(issue_id.clone()),
@@ -244,7 +228,6 @@ mod test {
             mock_json_body.to_string(),
             search_args,
             expected_res,
-        )
-        .await;
+        );
     }
 }
