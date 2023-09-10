@@ -6,9 +6,7 @@
 #### Requires Cargo to be install. [Installation guide](https://doc.rust-lang.org/cargo/getting-started/installation.html)
 
 ```sh
-git clone https://github.com/m-bal/gira.git
-cd gira/
-cargo install --path .
+cargo install --git https://github.com/m-bal/gira.git
 ```
 
 Cargo installs the binary into `${HOME}/.cargo/bin`
