@@ -40,6 +40,7 @@ pub struct SearchArgs {
     pub project: Option<String>,
     pub assignee: Option<String>,
     pub id: Option<String>,
+    pub filter: Option<String>,
 }
 
 impl std::fmt::Display for SearchArgs {
@@ -50,10 +51,25 @@ impl std::fmt::Display for SearchArgs {
             jql_search.push_str(&format!("project='{}'", self.project.as_ref().unwrap()));
         }
         if self.assignee.is_some() {
-            jql_search.push_str(&format!("assignee='{}'", self.assignee.as_ref().unwrap()));
+            jql_search.push_str(&format!(
+                "{}assignee='{}'",
+                if jql_search.is_empty() { "" } else { "AND " },
+                self.assignee.as_ref().unwrap(),
+            ));
         }
         if self.id.is_some() {
-            jql_search.push_str(&format!("id='{}'", self.id.as_ref().unwrap()));
+            jql_search.push_str(&format!(
+                "{}id='{}'",
+                if jql_search.is_empty() { "" } else { "AND " },
+                self.id.as_ref().unwrap()
+            ));
+        }
+        if self.filter.is_some() {
+            jql_search.push_str(&format!(
+                "{}text ~ '{}'",
+                if jql_search.is_empty() { "" } else { "AND " },
+                self.filter.as_ref().unwrap()
+            ));
         }
 
         if jql_search.is_empty() {

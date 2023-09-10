@@ -100,6 +100,10 @@ pub fn bump_branch(name: &str) -> String {
         + format!(".v{}", num + 1).as_str();
 }
 
+pub fn convert_str_to_link(url: &str, text: &str) -> String {
+    format!("\u{1b}]8;;{}\u{1b}\\{}\u{1b}]8;;\u{1b}\\", url, text)
+}
+
 #[cfg(test)]
 mod test {
     use test_case::test_case;

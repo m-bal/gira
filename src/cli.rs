@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 #[command(author, version, about, long_about = None)]
 pub struct Opts {
     #[command(subcommand)]
-    pub command: Command,
+    pub subcommands: Option<Command>,
 }
 
 #[derive(Subcommand, Debug)]
@@ -15,7 +15,23 @@ pub enum Command {
         issue_id: String,
     },
     /// List issues assigned to you (uses jira.email or user.email to filter)
-    List,
+    List {
+        /// Filter by project name
+        #[arg(short, long)]
+        project: Option<String>,
+        /// Search an issue's Summary, Description, Environment and Comments field
+        #[arg(short, long)]
+        filter: Option<String>,
+    },
+    /// List all issues
+    ListAll {
+        /// Search by project name
+        #[arg(short, long)]
+        project: Option<String>,
+        /// Search an issue's Summary, Description, Environment and Comments field
+        #[arg(short, long)]
+        filter: Option<String>,
+    },
     /// bump the branch version (creating a new branch for the current issue)
     Bump,
 }

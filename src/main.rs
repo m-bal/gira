@@ -3,11 +3,11 @@ mod config;
 pub mod jira;
 
 use anyhow::Result;
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use cli::{Command, Opts};
 use config::JiraConfig;
 use gira::utils;
-use jira::{JiraClient, SearchArgs};
+use jira::{JiraClient, JiraSearchOutput, SearchArgs};
 use std::process::ExitCode;
 
 fn main() {
@@ -28,8 +28,12 @@ fn run() -> Result<ExitCode> {
         api_token: utils::retrive_git_config("jira.token").unwrap(),
     };
     let client = JiraClient::new(jira_config);
+    if opts.subcommands.is_none() {
+        let _ = Opts::command().print_help();
+        return Ok(ExitCode::FAILURE);
+    }
 
-    match opts.command {
+    match opts.subcommands.unwrap() {
         Command::Start { issue_id } => {
             s.id = Some(issue_id.clone());
             //TODO: block with a timer.
@@ -59,25 +63,23 @@ fn run() -> Result<ExitCode> {
                 .as_str(),
             );
 
-            return Ok(branch_created.unwrap_or_else(|err| {
+            Ok(branch_created.unwrap_or_else(|err| {
                 eprintln!("{}", err);
                 ExitCode::FAILURE
-            }));
+            }))
         }
-        Command::List => {
+        Command::List { project, filter } => {
             s.assignee = Some(email);
+            s.project = project;
+            s.filter = filter;
             let res = client.issues(s);
-            if let Some(err) = res.error_messages {
-                eprintln!("Failed to get any data from jira {}", err.join("\n"));
-                return Ok(ExitCode::FAILURE);
-            }
-            if res.issues.is_none() {
-                eprintln!("You do not have any assigned issues");
-                return Ok(ExitCode::SUCCESS);
-            }
-            for issue in res.issues.iter().flatten() {
-                println!("{}-{}", issue.key, utils::normalize_title(&issue.title));
-            }
+            list_issues(res)
+        }
+        Command::ListAll { project, filter } => {
+            s.project = project;
+            s.filter = filter;
+            let res = client.issues(s);
+            list_issues(res)
         }
         Command::Bump => {
             let branch_name = utils::current_branch_name();
@@ -85,17 +87,37 @@ fn run() -> Result<ExitCode> {
                 Ok(name) => {
                     let bumped_branch_name = utils::bump_branch(&name);
                     let branch_created = utils::git_make_branch(&bumped_branch_name);
-                    return Ok(branch_created.unwrap_or_else(|err| {
+                    Ok(branch_created.unwrap_or_else(|err| {
                         eprintln!("{}", err);
                         ExitCode::FAILURE
-                    }));
+                    }))
                 }
                 Err(err) => {
                     eprintln!("{}", err);
-                    return Ok(ExitCode::FAILURE);
+                    Ok(ExitCode::FAILURE)
                 }
             }
         }
+    }
+}
+
+fn list_issues(res: JiraSearchOutput) -> Result<ExitCode> {
+    if let Some(err) = res.error_messages {
+        eprintln!("Failed to get any data from jira {}", err.join("\n"));
+        return Ok(ExitCode::FAILURE);
+    }
+    if res.issues.is_none() {
+        eprintln!("You do not have any assigned issues");
+        return Ok(ExitCode::SUCCESS);
+    }
+    for issue in res.issues.iter().flatten() {
+        let text = format!("{}-{}", issue.key, utils::normalize_title(&issue.title));
+        let url = format!(
+            "{}/browse/{}",
+            utils::retrive_git_config("jira.host").unwrap(),
+            issue.key
+        );
+        eprintln!("{}", utils::convert_str_to_link(&url, &text))
     }
     Ok(ExitCode::SUCCESS)
 }
