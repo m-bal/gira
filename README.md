@@ -56,14 +56,14 @@ git config --global jira.email <jira-account-email>
 ## Usage
 
 ```sh
-gira <COMMAND>
+Usage: gira [COMMAND]
 
 Commands:
-  start  Creates a branch based on the jira issue id (PROJECT-ID)
-  list   List issues assigned to you (uses jira.email or user.email to filter)
-  bump   bump the branch version (creating a new branch for the current issu
-e)
-  help   Print this message or the help of the given subcommand(s)
+  start     Creates a branch based on the jira issue id (PROJECT-ID)
+  list      List issues assigned to you (uses jira.email or user.email to filter)
+  list-all  List all issues
+  bump      bump the branch version (creating a new branch for the current issue)
+  help      Print this message or the help of the given subcommand(s)
 
 Options:
   -h, --help     Print help
@@ -78,4 +78,24 @@ Arguments:
 
 Options:
   -h, --help  Print help
+```
+
+```sh
+Usage: gira list [OPTIONS]
+
+Options:
+  -p, --project <PROJECT>  Filter by project name
+  -f, --filter <FILTER>    Search an issue's Summary, Description, Environment and Comme
+nts field
+  -h, --help               Print help
+```
+
+```sh
+Usage: gira list-all [OPTIONS]
+
+Options:
+  -p, --project <PROJECT>  Search by project name
+  -f, --filter <FILTER>    Search an issue's Summary, Description, Environment and Comme
+nts field
+  -h, --help               Print help
 ```
